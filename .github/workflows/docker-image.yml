@@ -1,10 +1,7 @@
 name: Docker Image CI
 
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  repository_dispatch:
+  workflow_dispatch:
 
 jobs:
 
@@ -15,4 +12,12 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build the Docker image
-      run: docker build . --file Dockerfile 
+      run: |
+         #docker build . --file Dockerfile 
+         image="kylemanna/openvpn"
+         docker build -t "$image" .
+         docker inspect "$image"
+         docker run --rm "$image" openvpn --version || true # why does it return 1?
+         docker run --rm "$image" openssl version
+         official-images/test/run.sh "$image"
+         test/run.sh "$image"
